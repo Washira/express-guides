@@ -30,7 +30,7 @@ app.use(
     secret,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true },
+    maxAge: 1000 * 60 * 5, // 5 minutes
   })
 )
 
@@ -71,23 +71,28 @@ app.post('/api/login', async (req, res) => {
       return res.json({ message: 'Email not found' })
     }
     const user = rows[0]
+    // console.log(user)
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
       return res.json({ message: 'User or password not match' })
     }
     // jwt token
-    const token = jwt.sign({ email: user.email }, secret, {
-      expiresIn: '1h',
-    })
+    // const token = jwt.sign({ email: user.email }, secret, {
+    //   expiresIn: '1h',
+    // })
 
-    res.cookie('token', token, {
-      maxAge: 100 * 60 * 5, // the token will be removed out from browser after 5 minutes
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none', // for cross-site request
-    })
+    // res.cookie('token', token, {
+    //   maxAge: 100 * 60 * 5, // the token will be removed out from browser after 5 minutes
+    //   httpOnly: true,
+    //   secure: true,
+    //   sameSite: 'none', // for cross-site request
+    // })
 
-    res.json({ message: 'Login successfully', token })
+    req.session.userId = user.id
+    req.session.user = user
+
+    // res.json({ message: 'Login successfully', token })
+    res.json({ message: 'Login successfully' })
   } catch (error) {
     res.status(401).json({ message: 'login fail', error })
   }
@@ -96,21 +101,29 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/users', async (req, res) => {
   try {
     // const token = req?.headers?.authorization?.split(' ')[1] // Bearer token, get token from headers
-    const token = req.cookies.token // get token from cookies
-    if (!token) {
-      return res.json({ message: 'Token not found' })
+    // const token = req.cookies.token // get token from cookies
+
+    // if (!token) {
+    //   return res.json({ message: 'Token not found' })
+    // }
+
+    // const decoded = jwt.verify(token, secret) // decode token
+    // if (!decoded) {
+    //   return res.json({ message: 'Token not valid' })
+    // }
+
+    if (!req.session.userId) {
+      throw { message: 'Auth fail' }
     }
-    const decoded = jwt.verify(token, secret) // decode token
-    if (!decoded) {
-      return res.json({ message: 'Token not valid' })
-    }
-    const [checkUser] = await conn.query(
-      'SELECT * FROM users WHERE email = ?',
-      decoded.email
-    ) // check user
-    if (checkUser.length === 0) {
-      return res.json({ message: 'User not found' })
-    }
+
+    // const [checkUser] = await conn.query(
+    //   'SELECT * FROM users WHERE email = ?',
+    //   decoded.email
+    // ) // check user
+    // if (checkUser.length === 0) {
+    //   return res.json({ message: 'User not found' })
+    // }
+
     const [rows] = await conn.query('SELECT * FROM users')
     res.json({ users: rows })
   } catch (error) {
