@@ -6,6 +6,7 @@
     - [2. Set Token in `cookie` and send it to server](#2-set-token-in-cookie-and-send-it-to-server)
     - [3. Set Token in `session` into server](#3-set-token-in-session-into-server)
   - [File Uploads](#file-uploads)
+    - [1. Upload file to server](#1-upload-file-to-server)
   - [Cache Design Patterns](#cache-design-patterns)
   - [Kafka Distribution System](#kafka-distribution-system)
   - [Elasticsearch](#elasticsearch)
@@ -94,6 +95,10 @@ axios.get('http://localhost:3000/api/user', {
 วิธีการนี้ จะเป็นการพึ่งพาการเก็บข้อมูลไว้ใน server โดยตรง และไม่ต้องเก็บข้อมูลไว้ที่ client และไม่ต้องส่งข้อมูลไปที่ server ทุกครั้งที่ request api
 
 ## File Uploads
+
+### 1. Upload file to server
+
+เป็นการเก็บ Binary Format (ฺฺBlob) ของไฟล์ไว้ใน server โดยตรง
 
 ## Cache Design Patterns
 
