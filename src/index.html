@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <input type="file" id="fileInput" />
+  <button onclick="uploadFile()">Upload</button>
+
+  <!-- เพิ่ม code progress bar มา-->
+
+  <div>
+    <progress id="uploadProgress" value="0" max="100" style="width: 100%"></progress>
+    <span id="uploadPercentage">0%</span>
+  </div>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    const uploadFile = async () => {
+      const fileInput = document.getElementById('fileInput')
+
+      if (!fileInput.files.length) {
+        return alert('Please choose a file to upload')
+      }
+      // เพิ่ม 2 อันนี้เข้ามา
+      const progressBar = document.getElementById('uploadProgress')
+      const uploadPercentageDisplay = document.getElementById('uploadPercentage')
+
+      // สร้าง form data และเพิ่ม file ที่เลือกเข้าไป เพื่อส่งไปที่ server แทนการส่งเป็น blob
+      const formData = new FormData()
+      formData.append('test', fileInput.files[0])
+
+      try {
+        const response = await axios
+          .post('http://localhost:8000/api/upload', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+            onUploadProgress: function(progressEvent) {
+              // เพิ่ม update progress กลับเข้า UI ไป
+              const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+              progressBar.value = percentCompleted
+              uploadPercentageDisplay.innerText = `${percentCompleted}%`
+            },
+          })
+      } catch (error) {
+        console.log('error', error)
+        alert('Error uploading file')
+      }
+    }
+  </script>
+</body>
+</html>
