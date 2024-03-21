@@ -8,6 +8,7 @@
 <body>
   <input type="file" id="fileInput" />
   <button onclick="uploadFile()">Upload</button>
+  <button onclick="cancelUploadBtn()">Cancel</button>
 
   <!-- เพิ่ม code progress bar มา-->
 
@@ -18,6 +19,7 @@
 
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script>
+    let currentSource = null // สร้างตัวแปรไว้เก็บ cancel token ที่สร้างขึ้นมา
     const uploadFile = async () => {
       const fileInput = document.getElementById('fileInput')
 
@@ -29,8 +31,23 @@
       const uploadPercentageDisplay = document.getElementById('uploadPercentage')
 
       // สร้าง form data และเพิ่ม file ที่เลือกเข้าไป เพื่อส่งไปที่ server แทนการส่งเป็น blob
+      const selectedFile = fileInput.files[0]
+
+      // ตรวจสอบขนาดของไฟล์ และ type ก่อนส่งไปที่ server
+      // if (selectedFile.size > 1024 * 1024 * 5) {
+      //   return alert('Too large file, please choose a file smaller than 5MB')
+      // }
+
+      // ตรวจสอบ type ของไฟล์
+      // if (!['image/jpeg', 'image/png', 'application/pdf'].includes(selectedFile.type)) {
+      //   return alert('Invalid file type, please choose a valid file type')
+      // }
+
       const formData = new FormData()
-      formData.append('test', fileInput.files[0])
+      formData.append('test', selectedFile)
+
+      const source = axios.CancelToken.source() // สร้าง cancel token ขึ้นมา
+      currentSource = source // เก็บ current source ไว้เพื่อใช้ในการ cancel ไฟล์
 
       try {
         const response = await axios
@@ -44,10 +61,16 @@
               progressBar.value = percentCompleted
               uploadPercentageDisplay.innerText = `${percentCompleted}%`
             },
+            cancelToken: source.token, // ใส่ cancel token เข้าไป
           })
       } catch (error) {
         console.log('error', error)
         alert('Error uploading file')
+      }
+    }
+    const cancelUploadBtn = () => {
+      if (currentSource) {
+        currentSource.cancel('Operation canceled by the user.')
       }
     }
   </script>
