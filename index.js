@@ -1,6 +1,8 @@
 const express = require('express')
 const cors = require('cors')
 const multer = require('multer')
+const fs = require('fs')
+const path = require('path')
 
 const app = express()
 app.use(cors())
@@ -14,6 +16,12 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     const filename = `${Date.now()}-${file.originalname}`
     cb(null, filename) // ใช้ชื่อเดิมของ file แต่เพิ่มเวลาที่ upload ขึ้นไปด้วย
+    req.on('aborted', () => {
+      // ถ้าเกิด error ในการ upload จะทำการลบ file ที่ upload ไปแล้ว
+      const filePath = path.join('uploads', filename)
+      console.log('aborted', filePath)
+      fs.unlinkSync(filePath)
+    })
   },
 })
 
@@ -26,14 +34,16 @@ const upload = multer({
   // limits: {
   //   fileSize: 1024 * 1024 * 5, // 5MB
   // },
-  // fileFilter: (req, file, cb) => {
-  //   if (['image/jpeg', 'image/png'].includes(file.mimetype)) {
-  //     // allow
-  //     cb(null, true)
-  //   } else {
-  //     return cb(new Error('Only valid format allowed!'), false)
-  //   }
-  // },
+  fileFilter: (req, file, cb) => {
+    if (
+      ['image/jpeg', 'image/png', 'application/pdf'].includes(file.mimetype)
+    ) {
+      // allow
+      cb(null, true)
+    } else {
+      return cb(new Error('Only valid format allowed!'), false)
+    }
+  },
 })
 
 // app.post('/api/upload', upload.single('test'), (req, res) => {
@@ -44,9 +54,8 @@ app.post('/api/upload', (req, res) => {
   upload.single('test')(req, res, (err) => {
     if (err) {
       // res.status(400).json({ message: err.message })
-      return res
-        .status(400)
-        .json({ message: 'upload fail', error: err.message })
+      res.status(400).json({ message: 'upload fail', error: err.message })
+      return res.req.destroy() // ถ้าเกิด error ในการ upload จะทำการ destroy request ที่เกิด error
     }
     // res.send(req.file)
     res.json({ message: 'File uploaded successfully' })
