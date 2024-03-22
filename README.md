@@ -14,8 +14,8 @@
     - [4. Cancel Upload](#4-cancel-upload)
     - [5. Remove File after Cancel Upload](#5-remove-file-after-cancel-upload)
   - [Cache Design Patterns](#cache-design-patterns)
-  - [Kafka Distribution System](#kafka-distribution-system)
   - [Elasticsearch](#elasticsearch)
+  - [Kafka Distribution System](#kafka-distribution-system)
   - [RabbitMQ](#rabbitmq)
 
 
@@ -267,8 +267,14 @@ const storage = multer.diskStorage({
 
 ## Cache Design Patterns
 
-## Kafka Distribution System
+ติดตั้ง Library ที่จำเป็น
+
+```bash
+npm i body-parser mysql2 redis node-cron
+```
 
 ## Elasticsearch
+
+## Kafka Distribution System
 
 ## RabbitMQ
