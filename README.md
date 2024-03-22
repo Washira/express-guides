@@ -14,8 +14,11 @@
     - [4. Cancel Upload](#4-cancel-upload)
     - [5. Remove File after Cancel Upload](#5-remove-file-after-cancel-upload)
   - [Cache Design Patterns](#cache-design-patterns)
-  - [Kafka Distribution System](#kafka-distribution-system)
+    - [1. Lazy loading (Cache-Aside)](#1-lazy-loading-cache-aside)
+    - [2. Write-through](#2-write-through)
+    - [3. Write-behind (Write-back)](#3-write-behind-write-back)
   - [Elasticsearch](#elasticsearch)
+  - [Kafka Distribution System](#kafka-distribution-system)
   - [RabbitMQ](#rabbitmq)
 
 
@@ -267,8 +270,24 @@ const storage = multer.diskStorage({
 
 ## Cache Design Patterns
 
-## Kafka Distribution System
+ติดตั้ง Library ที่จำเป็น
+
+```bash
+npm i body-parser mysql2 redis node-cron
+```
+
+Cache มี Sequent ทั้งหมด 3 แบบ
+
+### 1. Lazy loading (Cache-Aside)
+
+เป็นการเก็บข้อมูลไว้ใน cache โดยไม่ต้องทำการ load ข้อมูลเข้ามาทั้งหมด แต่จะทำการ load ข้อมูลเข้ามาเมื่อมีการ request ข้อมูลนั้นๆ
+
+### 2. Write-through
+
+### 3. Write-behind (Write-back)
 
 ## Elasticsearch
+
+## Kafka Distribution System
 
 ## RabbitMQ
