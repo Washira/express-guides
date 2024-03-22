@@ -245,7 +245,9 @@ const cancelUploadBtn = () => {
 const fs = require('fs')
 const path = require('path')
 ```
-  
+
+เพิ่ม event listener ใน `filename` ของ `diskStorage` ที่จะทำการลบไฟล์ที่ upload ออกจาก server เมื่อมีการ cancel upload
+
 ```js
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
