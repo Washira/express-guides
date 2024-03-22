@@ -12,6 +12,7 @@
       - [Validation: `size`](#validation-size)
       - [Validation: `mimeType`](#validation-mimetype)
     - [4. Cancel Upload](#4-cancel-upload)
+    - [5. Remove File after Cancel Upload](#5-remove-file-after-cancel-upload)
   - [Cache Design Patterns](#cache-design-patterns)
   - [Kafka Distribution System](#kafka-distribution-system)
   - [Elasticsearch](#elasticsearch)
@@ -234,6 +235,32 @@ const cancelUploadBtn = () => {
 
 ```html
 <button onclick="cancelUploadBtn()">Cancel</button>
+```
+
+### 5. Remove File after Cancel Upload
+
+เมื่อมีการ cancel upload ไฟล์ ให้ทำการลบไฟล์ที่ถูก upload ออกจาก server
+
+```js
+const fs = require('fs')
+const path = require('path')
+```
+  
+```js
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/') // สร้าง folder ชื่อ uploads ใน root directory ของ project
+  },
+  filename: (req, file, cb) => {
+    const filename = `${Date.now()}-${file.originalname}`
+    cb(null, filename) // ใช้ชื่อเดิมของ file แต่เพิ่มเวลาที่ upload ขึ้นไปด้วย
++    req.on('aborted', () => {
++     // ถ้าเกิด error ในการ upload จะทำการลบ file ที่ upload ไปแล้ว
++     const filePath = path.join('uploads', filename)
++     fs.unlinkSync(filePath)
++   })
+  },
+})
 ```
 
 ## Cache Design Patterns
