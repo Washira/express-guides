@@ -312,11 +312,40 @@ Cache มี Sequent ทั้งหมด 3 แบบ
 
 ### 1. Lazy loading (Cache-Aside)
 
-เป็นการเก็บข้อมูลไว้ใน cache โดยไม่ต้องทำการ load ข้อมูลเข้ามาทั้งหมด แต่จะทำการ load ข้อมูลเข้ามาเมื่อมีการ request ข้อมูลนั้นๆ
+เป็นการเก็บข้อมูลไว้ใน database ตามปกติ
+
+ตอนที่เรียกใช้งานข้อมูลนั้นๆ จะทำการเช็คว่าข้อมูลนั้นๆ มีอยู่ใน cache หรือไม่
+- ถ้าไม่มีจะทำการ load ข้อมูลเข้ามาและเก็บไว้ใน cache และ return ข้อมูลนั้น กลับไป
+- ถ้ามีอยู่ใน cache ก็จะ return ข้อมูลใน cache กลับไป
+
+```js
+app.get('/users', async (req, res) => {
+  const cachedData = await redisConn.get('users')
+  if (cachedData) {
+    res.json(JSON.parse(cachedData))
+    return
+  }
+  const [rows] = await mySqlConn.execute('SELECT * FROM users')
+  redisConn.set('users', JSON.stringify(rows))
+  res.json(rows)
+})
+```
 
 ### 2. Write-through
 
+เป็นการเก็บข้อมูลใน cache และ database พร้อมๆ กัน
+
+การเรียกใช้งานก็จะเหมือนกับ Lazy loading
+
+```js
+```
+
 ### 3. Write-behind (Write-back)
+
+เป็นการเก็บข้อมูลใน cache ก่อน และเมื่อมีการเปลี่ยนแปลงข้อมูลใน cache จะทำการเปลี่ยนแปลงข้อมูลใน database ต่อ
+
+```js
+```
 
 ## Elasticsearch
 
