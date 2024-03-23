@@ -38,6 +38,7 @@ const initRedis = async () => {
 app.get('/users', async (req, res) => {
   const cachedData = await redisConn.get('users')
   if (cachedData) {
+    console.log('Cached data: ', cachedData)
     console.log('Get data from Redis')
     res.json(JSON.parse(cachedData))
     return
