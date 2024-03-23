@@ -276,6 +276,38 @@ const storage = multer.diskStorage({
 npm i body-parser mysql2 redis node-cron
 ```
 
+เริ่มต้น Project เหมือนกับตอนที่ทำ mysql เพียงแต่เพิ่มการเชื่อมต่อกับ redis และ cron
+
+```js
+const express = require('express')
+const bodyParser = require('body-parser')
+const mysql = require('mysql2')
+const redis = require('redis')
+const cron = require('node-cron')
+
+const app = express()
+app.use(bodyParser.json())
+const port = 8000
+
+/* เชื่อมต่อกับ mysql ตามปกติ (สร้าง initMySql()) */
+
+let redisConn = null
+
+const initRedis = async () => {
+  redisConn = redis.createClient()
+  redisConn.on('error', (err) => {
+    console.log('Redis error: ' + err)
+  })
+  await redisConn.connect()
+}
+
+app.listen(port, async () => {
+  await initMySql()
+  await initRedis()
+  console.log(`Server is running on port ${port}`)
+})
+```
+
 Cache มี Sequent ทั้งหมด 3 แบบ
 
 ### 1. Lazy loading (Cache-Aside)
